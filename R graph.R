@@ -53,63 +53,45 @@ names(df.long)[names(df.long)=="MEPS"] <- "locale"
 
 #ggplot(data=subset(df.long, df.long$locale %in% levels(df.long$locale)[5:8]),
 
-p=ggplot(data=subset(df.long, df.long$locale %in% c("SPOKANE","BALTIMORE")),
-       aes(x=Time, y=RR, colour=locale, group=locale, label=RR))+
+
+
+
+ggplot(data=subset(df.long, df.long$locale %in% c("SPOKANE","BALTIMORE","SEATTLE")),
+         aes(x=Time, y=RR, colour=locale, group=locale, label=RR))+
   scale_y_continuous(breaks=seq(0, 100, 10))+
   labs(y="Response Rate")+
   coord_cartesian(ylim=c(0, 110))+
   geom_line(size=.5)+
   geom_point()+
-    ggtitle(paste("i","Response Rates"))+
-  theme(plot.title=element_text(size=18, face="bold", vjust=1),
-        axis.title=element_text(size=16),
-        axis.text.x=element_text(size=10, angle=90),
-        axis.line=element_line(colour="gray", size=.2),
-        legend.position="none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())+ # or theme_blank())
-  scale_x_date(labels = date_format("%b"), breaks=date_breaks("month"))+
-  facet_grid(~Year, scales="free", space="free")+
-  geom_text(aes(Time, RR),vjust=-1, size=4, fontface=2, colour="black") #Data labels, fontface=2 is for bold
-
-gt <- ggplot_gtable(ggplot_build(p)) #Takes existing plot and stores into a gtable (programmable structure)
-gt$layout$clip[gt$layout$name == "panel"] <- "off" #Disables 
-grid.draw(gt)
-
-facet_grid(~ main.cat, scales = 'free')
-
-
-ggplot(data=subset(df.long, df.long$locale %in% levels(df.long$locale)[1:3]), 
-       aes(x=Time, y=RR, colour=locale, group=locale, label=RR))+
-    geom_line()+
-  geom_text(colour="black")
-  scale_y_continuous(breaks=seq(0, 100, 10))+
-  geom_line(data=subset(df.long, df.long$locale %in% levels(df.long$locale)[1:3]), 
-            aes(x=Time, y=RR, colour=locale, group=locale, label=RR))+
-  geom_text(data=df.long, aes(Time, RR),vjust=-1, size=4)+ #Data labels
-  
-  
- 
-  labs(y="Response Rate")+
-  coord_cartesian(ylim=c(0, 110))+
-  
   ggtitle(paste("i","Response Rates"))+
   theme(plot.title=element_text(size=18, face="bold", vjust=1),
         axis.title=element_text(size=16),
         axis.text.x=element_text(size=10, angle=90),
-        axis.line=element_line(colour="gray", size=.2),
-        legend.position="none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())+ # or theme_blank())
-  scale_x_date(labels = date_format("%b-%y"), breaks=date_breaks("month"))+
-  geom_line(size=.8)+
-  facet_grid(~Year, scales="free_x", space="free_x")
+        axis.line=element_line(colour="black", size=.2),
+        legend.position="top",
+        legend.title=element_blank(),
+        legend.margin=unit(-0.6, "cm"),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        #panel.border = element_line(colour="darkred", size=0.5, linetype="dashed", fill=NA),
+        panel.background = element_blank(),
+        panel.grid.major.y=element_line(colour="gray", linetype="solid", size=.2))+ # or theme_blank())
+  scale_x_date(labels = date_format("%b"), breaks=date_breaks("month"))+
+  facet_grid(~Year, scales="free", space="free")+
+  geom_text(aes(Time, RR),vjust=-1, size=4, fontface=2, show_guide=FALSE) #+ #Data labels, fontface=2 is for bold
+  #geom_text(data=df.long[df$Time=="2014-12-01" & df.long$local %in% "SPOKANE",], aes(label=locale))
+
+?ggplot2::theme
+
+gt <- ggplot_gtable(ggplot_build(p)) #Takes existing plot and stores into a gtable (programmable structure)
+gt$layout$clip[gt$layout$name == "panel"] <- "off" #Disables clipping
+pdf("test.pdf", paper="USr", height=8, width=10)  
+grid.draw(gt)
+dev.off()
 
 
+facet_grid(~ main.cat, scales = 'free')
 
 
 
