@@ -1,33 +1,11 @@
 rm(list=ls())
 
-setwd("C:/Users/rcarvalho/Desktop/")
-data=read.csv("book1.csv")
-data=data[1:162,]
-
-data$RR=as.numeric(sub("%","", data$RR))
-
-
-require(ggplot2)
-
-for (name in 1:2) {
-  png(paste("plot",name,".png",sep=""),width=800, height=600)
-  g=ggplot(data=data[eval(parse(text = paste("data$MEPS %in% list",name,sep=""))),],
-           aes(x=Year, y=RR, colour=MEPS, group=MEPS))+
-    geom_line(size=.8)+scale_y_continuous(breaks=seq(0, 100, 10))+labs(y="Response Rate")+
-    coord_cartesian(ylim=c(0, 100))
-  print(g)
-  dev.off()
-}
-
-#################################################################################
-
-rm(list=ls())
-
 require(scales)
 require(reshape2)
 require(ggplot2)
 require(plotly)
 require(grid)
+require(gridExtra)
 
 setwd("C:/Users/rcarvalho/Desktop/")
 
@@ -84,7 +62,8 @@ levels(df.long$locale)<-MEPS_names
 
 
 
-meps_seq=paste(seq(1,65, by=5),":",seq(1,65, by=5)+4, sep="")
+meps_seq=paste(seq(1,65, by=3),":",seq(1,65, by=3)+2, sep="")
+meps_seq
 
 pdf("test.pdf", paper="USr", height=8, width=10)  
 for (i in meps_seq) { 
@@ -124,10 +103,17 @@ for (i in meps_seq) {
   grid.arrange(gt)
   }
 dev.off()
-require(gridExtra)
 
-print(g)
 
+install.packages("devtools")
+library("devtools")
+install_github("plotly", "ropensci")
+library("plotly")
+
+p=p+ggtitle("Response Rates")
+p
+py <- plotly("ric.s.carvalho", "acyin9qgrk")
+py$ggplotly(p)
 
 #################################################
 #######Test plot
