@@ -1,0 +1,30 @@
+```{r results='asis', echo=FALSE, comment=NA}
+library(rCharts)
+library(ggplot2)
+library(reshape2)
+library(knitr)
+
+summary(cars)
+
+data=read.csv("prop by race.csv")
+
+
+data$Poll=format(as.Date(data$Poll, "%m/%d/%Y"))
+
+
+data=transform(data,White=White*100, Black=Black*100, Hispanic=Hispanic*100)
+
+
+m1<-mPlot(x="Poll", postUnits="%",  smooth="false", y=c("White","Black","Hispanic"), type="Line", data=data, lineColors=c("darkblue","red","orange"))
+
+```
+
+```{r setup, cache = F}
+library(knitr)
+opts_chunk$set(comment = NA, results = 'asis', comment = NA, tidy = F)
+```
+
+```{r chart2}
+m1$show
+```
+
