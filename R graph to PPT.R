@@ -68,7 +68,11 @@ meps_seq
 pdf("test.pdf", paper="USr", height=8, width=10)  
 for (i in meps_seq) { 
   
-  list=levels(df.long$locale)[eval(parse(text=i))]
+  print(levels(df$meps_labels)[1:3])
+}
+         
+         
+         [eval(parse(text=i))]
   
   p=ggplot(data=subset(df.long, df.long$locale %in% list),
            aes(x=Time, y=RR, colour=locale, group=locale, label=RR))+
