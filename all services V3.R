@@ -127,7 +127,7 @@ df$hjust <- ave(as.numeric(df$Time),df$Year,
 ### Chart macro
 mypres <- PPT.Open(file=paste(getwd(),"test.pptx",sep="/"),method="RDCOMClient")
 
-meps_seq=paste(seq(1,65, by=3),":",seq(1,65, by=3)+2, sep="")
+#meps_seq=paste(seq(1,65, by=3),":",seq(1,65, by=3)+2, sep="")
 
 for (i in unique(df$meps_labels)) {
   p<<- ggplot(data=df[df$meps_labels==i,],

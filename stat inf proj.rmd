@@ -1,0 +1,84 @@
+---
+title: "Statisical Inference - Part 2"
+output: html_document
+---
+
+For this part we load the **ToothGrowth** data so we can use hypothesis testing to compare tooth growth in each of 10 guinea pigs at each of three dosage levels of Vitamin C (0.5, 1, and 2mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+We expect the data to have 60 observations (10 guinea pigs x 2 delivery m ethods x 3 dosage levels).
+
+The **goal** will be to determine if one dosage level is superior to another, and if one delivery method is superior to another.
+
+First we load the data and perform some basic **exploratory analyses**.
+
+---
+
+```{r}
+df=data.frame(ToothGrowth)
+str(df)
+```
+This confirms that we have the 60 cases and that the dataset is organized in the manner we were expecting. Next we compute **means** for length each of the 2 delivery methods and 3 dosage levels.
+
+```{r}
+by(df$len, df$supp, mean)
+by(df$len, df$dose, mean)
+```
+We can see that the mean of length **APPEARS** greater for the OJ method and that it increases as the dosage increases. Next we draw some plots to visualize some of the information.
+
+```{r, echo=FALSE}
+require(ggplot2)
+ggplot(df,aes(x= len, ymax=max(..count..)))  + 
+  stat_bin(geom="bar", binwidth=5, aes(fill=..count..), colour="black") + 
+  stat_bin(binwidth=5, geom="text", aes(label=..count..), vjust=-1.5) +
+  facet_grid(.~supp)+
+  ylim(c(0,15))+
+  theme_bw()
+
+ggplot(data=df, aes(x=dose, y=len, group=supp, colour=supp))+
+  geom_point(shape=1,size=5)+
+  facet_grid(.~supp,scales="free")+
+  labs(x="Dosage level") +
+  labs(y="Tooth length by supplements type") +
+  labs(title="Tooth growth distribution by supplements type") +
+  geom_smooth(method="lm")+
+  theme_bw()
+
+```
+---
+Again, looking at the visual data,  the mean of length **APPEARS** greater for the OJ method and that it increases as the dosage increases for both dosage methods. The data also appears to be normally distributed, a key assumption as we move forward.
+
+The next step should be to formally test this. To do this, we make two hypothesis:
+
+1. Mean length is not equal for the OJ and VC delivery methods
+2. Mean length is not equal for each of the 3 dosage levels
+
+For both tests we know that the samples are **not paired**, so we will evaluate it as such. **Test 1** can be conducted very simply by doing a t-test at the 95% confidence level for the two delivery methods.
+
+---
+```{r}
+t.test(len ~ supp, data=df)
+```
+The p-value is above 5%, so we fail to reject the null hypothesis that the two means are equal. Thus, we must conclude that the dosage method does not not appear to have an effect here.
+
+For **Test 2** we will have to subset the data so we can perform the right comparisons.
+
+```{r, results='hide'}
+
+dose1<-subset(ToothGrowth, ToothGrowth$dose %in% c(0.5,1.0))
+dose2<-subset(ToothGrowth, ToothGrowth$dose %in% c(2.0,1.0))
+dose3<-subset(ToothGrowth, ToothGrowth$dose %in% c(0.5,2.0))
+
+t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose1)
+t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose2)
+t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose3)
+```
+
+The table below has the p-values and t-values for each test. At each one, we see that there is a significant difference between each of the dosage levels. Thus, we can conclude that length increases as the dosage level increases.
+
+The pattern of the results is clear enough that multiple comparison corrections do not seem necessary. Further evidence supporting this decision can be seen in the large t-values. 
+
+Test  | P-value | t-value
+------------- | ---------| ----
+0.5 versus 1.0 | `r format(round(t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose1)$p.value,2),nsmall=2)` | `r t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose1)$statistic`
+2.0 versus 1.0 | `r format(round(t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose2)$p.value,2),nsmall=2)` | `r t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose2)$statistic`
+0.5 versus 2.0 | `r format(round(t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose3)$p.value,2),nsmall=2)` | `r t.test(len ~ dose, paired=FALSE, var.equal=FALSE, data=dose3)$statistic`
